@@ -47,7 +47,7 @@ def get_commits_data():
     for commit in json_content:
         date_string = commit['commit']['author']['date']
         date_object = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
-        minute_key = date_object.strftime('%Y-%m-%d %H:%M')
+        minute_key = f"{date_object.hour:02d}:{date_object.minute:02d}"
         
         if minute_key in commits_by_minute:
             commits_by_minute[minute_key] += 1
@@ -55,8 +55,14 @@ def get_commits_data():
             commits_by_minute[minute_key] = 1
     
     # Convertir en liste pour le graphique
-    results = [{'minute': k, 'count': v} for k, v in commits_by_minute.items()]
+    results = [{'minute': k, 'count': v} for k, v in sorted(commits_by_minute.items())]
     return jsonify(results=results)
+
+@app.route('/extract-minutes/<date_string>')
+def extract_minutes(date_string):
+        date_object = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
+        minutes = date_object.minute
+        return jsonify({'minutes': minutes})
 
 @app.route("/commits/")
 def commits_graph():
