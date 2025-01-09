@@ -37,26 +37,34 @@ def monhistogramme():
 
 @app.route('/commits-data/')
 def get_commits_data():
-    response = urlopen('https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits')
-    raw_content = response.read()
-    json_content = json.loads(raw_content.decode('utf-8'))
-    
-    # Créer un dictionnaire pour compter les commits par minute
-    commits_by_minute = {}
-    
-    for commit in json_content:
-        date_string = commit['commit']['author']['date']
-        date_object = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
-        minute_key = f"{date_object.hour:02d}:{date_object.minute:02d}"
+    try:
+        print("Tentative de récupération des commits...")
+        response = urlopen('https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits')
+        raw_content = response.read()
+        json_content = json.loads(raw_content.decode('utf-8'))
+        print(f"Nombre de commits récupérés : {len(json_content)}")
         
-        if minute_key in commits_by_minute:
-            commits_by_minute[minute_key] += 1
-        else:
-            commits_by_minute[minute_key] = 1
-    
-    # Convertir en liste pour le graphique
-    results = [{'minute': k, 'count': v} for k, v in sorted(commits_by_minute.items())]
-    return jsonify(results=results)
+        # Créer un dictionnaire pour compter les commits par minute
+        commits_by_minute = {}
+        
+        for commit in json_content:
+            date_string = commit['commit']['author']['date']
+            print(f"Date du commit : {date_string}")
+            date_object = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
+            minute_key = f"{date_object.hour:02d}:{date_object.minute:02d}"
+            
+            if minute_key in commits_by_minute:
+                commits_by_minute[minute_key] += 1
+            else:
+                commits_by_minute[minute_key] = 1
+        
+        # Convertir en liste pour le graphique
+        results = [{'minute': k, 'count': v} for k, v in sorted(commits_by_minute.items())]
+        print(f"Données formatées : {results}")
+        return jsonify(results=results)
+    except Exception as e:
+        print(f"Erreur : {str(e)}")
+        return jsonify(error=str(e)), 500
 
 @app.route('/extract-minutes/<date_string>')
 def extract_minutes(date_string):

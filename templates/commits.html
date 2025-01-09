@@ -28,64 +28,112 @@
             color: #666;
             margin-bottom: 20px;
         }
+        #error_message {
+            color: red;
+            text-align: center;
+            display: none;
+            margin: 20px;
+        }
+        #raw_data {
+            margin: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 4px;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <h1>Activité des Commits par Minute</h1>
     <p class="description">Nombre de commits effectués pour chaque minute sur le projet original</p>
+    <div id="error_message"></div>
     <div id="chart_div"></div>
+    <div id="raw_data"></div>
     <script>
         google.charts.load('current', { packages: ['corechart'] });
-        google.charts.setOnLoadCallback(drawChart);
+        google.charts.setOnLoadCallback(fetchData);
 
-        function drawChart() {
+        function showError(message) {
+            const errorDiv = document.getElementById('error_message');
+            errorDiv.textContent = 'Erreur : ' + message;
+            errorDiv.style.display = 'block';
+        }
+
+        function showRawData(data) {
+            const rawDataDiv = document.getElementById('raw_data');
+            rawDataDiv.textContent = 'Données brutes : ' + JSON.stringify(data, null, 2);
+            rawDataDiv.style.display = 'block';
+        }
+
+        function fetchData() {
             fetch('/commits-data/')
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur réseau');
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    var dataTable = new google.visualization.DataTable();
-                    dataTable.addColumn('string', 'Heure:Minute');
-                    dataTable.addColumn('number', 'Nombre de Commits');
-
-                    data.results.forEach(entry => {
-                        dataTable.addRow([entry.minute, entry.count]);
-                    });
-
-                    var options = {
-                        title: 'Distribution des Commits par Minute',
-                        titleTextStyle: {
-                            fontSize: 16,
-                            bold: true
-                        },
-                        height: 500,
-                        legend: { position: 'none' },
-                        bar: { 
-                            groupWidth: '80%',
-                            color: '#4285F4'
-                        },
-                        vAxis: {
-                            title: 'Nombre de Commits',
-                            minValue: 0,
-                            gridlines: { count: 5 },
-                            format: '0'
-                        },
-                        hAxis: {
-                            title: 'Heure:Minute',
-                            slantedText: true,
-                            slantedTextAngle: 45
-                        },
-                        animation: {
-                            startup: true,
-                            duration: 1000,
-                            easing: 'out'
-                        },
-                        backgroundColor: {
-                            fill: '#ffffff'
-                        }
-                    };
-
-                    var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
-                    chart.draw(dataTable, options);
+                    console.log('Données reçues:', data);
+                    showRawData(data);
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    if (!data.results || data.results.length === 0) {
+                        throw new Error('Aucune donnée disponible');
+                    }
+                    drawChart(data);
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    showError(error.message);
                 });
+        }
+
+        function drawChart(data) {
+            var dataTable = new google.visualization.DataTable();
+            dataTable.addColumn('string', 'Heure:Minute');
+            dataTable.addColumn('number', 'Nombre de Commits');
+
+            data.results.forEach(entry => {
+                dataTable.addRow([entry.minute, entry.count]);
+            });
+
+            var options = {
+                title: 'Distribution des Commits par Minute',
+                titleTextStyle: {
+                    fontSize: 16,
+                    bold: true
+                },
+                height: 500,
+                legend: { position: 'none' },
+                bar: { 
+                    groupWidth: '80%',
+                    color: '#4285F4'
+                },
+                vAxis: {
+                    title: 'Nombre de Commits',
+                    minValue: 0,
+                    gridlines: { count: 5 },
+                    format: '0'
+                },
+                hAxis: {
+                    title: 'Heure:Minute',
+                    slantedText: true,
+                    slantedTextAngle: 45
+                },
+                animation: {
+                    startup: true,
+                    duration: 1000,
+                    easing: 'out'
+                },
+                backgroundColor: {
+                    fill: '#ffffff'
+                }
+            };
+
+            var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+            chart.draw(dataTable, options);
         }
     </script>
 </body>
