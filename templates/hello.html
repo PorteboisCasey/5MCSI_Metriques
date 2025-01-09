@@ -1,7 +1,7 @@
 <!doctype html>
 <title>Evaluation</title>
 <h1>Bienvenue sur votre projet Métriques</h1>
-<h2>Ceci est le projet de : Prénom Nom</h2>
+<h2>Ceci est le projet de : Portebois Casey</h2>
 <p>Si vous avez mis en ligne votre solution et si cette page d'accueil s'affiche dans votre navigateur alors <b>vous avez déjà gagné 4 points</b> sur votre note d'évaluation.</p>
 <p>Notions acquises lors de cette étape : Vous avez lors cette première étape apris à créer votre hébergement en ligne sur Alwaydata, installer une application, Forker un projet GitHUB et créer des Secrets qui seront utilisés lors de vos Commits pour mettre à jour votre site en ligne</p>
 <p>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - </p>
@@ -31,7 +31,7 @@ https://samples.openweathermap.org/data/2.5/forecast?lat=0&lon=0&appid=xxx</p>
 Vous observerez que nous utilisons une API gratuite fourni par Openweathermap. C'est typiquement le format que vous trouverez dans le cadre des services de métriques (Données issues de serveurs, de réseaux, de stockages, etc..).</p>
 <p>Les API fournissent en général des données au format JSON. JSON est un format structuré avec des étiquettes (également appelé des keys) et ont pour objectif de fournir des données "brut".<br/>
 <b>Prenez ici quelques minutes pour "comprendre" la structure de ces données JSON et identifer les clés et les données.</b></p>
-<p>- - - - - </p>
+<p>- - - - </p>
 <p>Ce qui nous intéresse à présent, c'est extraire la valeur de [dt] (c'est à dire les dates) et les valeurs stockées dans la clé [main][temp], c'est à dire les températures du jour.</p>
 <p>A noter que les dates ici sont au format "Timestamp". C'est à dire que la donnée est le nombre de secondes depuis le 1 janvier 2000 (un légacy d'UNIX). Les températures sont stockées au format Kelvin (il faudra donc les convertir en °C).</p> 
 <p>Vous allez à présent créer une nouvelle route "/tawarano/" dans votre application Python pour filtrer l'API d'Openweathermap et extraire uniquement les dates et température du jour. Ci-dessous la route à ajouter dans votre application.
